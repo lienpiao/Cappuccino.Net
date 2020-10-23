@@ -1,6 +1,18 @@
 # Cappuccino.Net
 ASP.NET MVC 5 + Entity Framework 6 Code First + Pear Admin Layui  后台管理系统
 
+#### 环境搭建
+
+##### 开发工具
+
+- Visual Studio 2019
+- Microsoft SQL Server Management Studio
+
+##### 开发环境
+
+- NET Framework 4.8
+- SQL Server 
+
 #### 使用说明
 
 1.Cappuccino.Web =》Configs =》database.config ，修改成自己数据连接
