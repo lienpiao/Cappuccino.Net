@@ -1,0 +1,48 @@
+﻿@model  Cappuccino.ViewModel.ActionViewModel
+
+@{
+    Layout = null;
+}
+
+<div class="layui-form-item">
+    <label class="layui-form-label">按钮名称</label>
+    <div class="layui-input-block">
+        <input type="text" name="name" lay-verify="required" autocomplete="off" placeholder="请输入按钮名称" class="layui-input">
+    </div>
+</div>
+<div class="layui-form-item">
+    <label class="layui-form-label">权限标识</label>
+    <div class="layui-input-block">
+        <input type="text" name="code" lay-verify="required" autocomplete="off" placeholder="请输入权限标识" class="layui-input">
+    </div>
+</div>
+<div class="layui-form-item">
+    <label class="layui-form-label">排序码</label>
+    <div class="layui-input-block">
+        <input type="text" name="sortCode" placeholder="排序码" autocomplete="off" class="layui-input" lay-verify="number" maxlength="2">
+    </div>
+</div>
+<div class="layui-form-item">
+    <label class="layui-form-label">按钮编码</label>
+    <div class="layui-input-block">
+        <input type="text" name="buttonCode" placeholder="按钮编码" autocomplete="off" class="layui-input" lay-verify="required">
+    </div>
+</div>
+<div class="layui-form-item">
+    <label class="layui-form-label">按钮样式</label>
+    <div class="layui-input-block">
+        <input type="text" name="buttonClass" lay-verify="required" autocomplete="off" placeholder="请输入样式" class="layui-input" value="pear-btn pear-btn-primary pear-btn-md">
+    </div>
+</div>
+<div class="layui-form-item">
+    <label class="layui-form-label">按钮图标</label>
+    <div class="layui-input-block">
+        <input type="text" id="buttonIcon" name="buttonIcon" value="layui-icon-face-smile" lay-filter="buttonIcon" style="display: none;">
+    </div>
+</div>
+<div class="layui-form-item">
+    <label class="layui-form-label">按钮位置</label>
+    <div class="layui-input-block">
+        @Html.EnumDropDownListFor(model => model.Location)
+    </div>
+</div>

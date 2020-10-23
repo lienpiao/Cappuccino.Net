@@ -1,0 +1,223 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="layui-card">
+    <div class="layui-card-body">
+        <form class="layui-form">
+            <div class="layui-form-item">
+                <div class="layui-form-item layui-inline">
+                    <label class="layui-form-label">关键字</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="keyword" placeholder="" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-inline">
+                    @Html.SearchBtnHtml()
+                    @Html.ResetBtnHtml()
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="layui-card">
+    <div class="layui-card-body">
+        <table id="tableId" lay-filter="tableId"></table>
+    </div>
+</div>
+
+@section Scripts {
+
+    <!-- 头工具栏模板 -->
+    <script type="text/html" id="toolbarTpl">
+        @Html.TopToolBarHtml(ViewData["TopButtonList"])
+        <button class="pear-btn pear-btn-success pear-btn-md" lay-event="expandAll">
+            <i class="layui-icon layui-icon-spread-left"></i>
+            展开
+        </button>
+        <button class="pear-btn pear-btn-success pear-btn-md" lay-event="foldAll">
+            <i class="layui-icon layui-icon-shrink-right"></i>
+            折叠
+        </button>
+    </script>
+
+    <!-- 行工具栏模板 -->
+    <script type="text/html" id="operationTpl">
+        @Html.RightToolBarHtml(ViewData["RightButtonList"])
+    </script>
+
+    <!-- 权限类型模板 -->
+    <script type="text/html" id="typeTpl">
+        {{#  if(d.type==0){ }}
+        <span class="layui-btn layui-btn-normal layui-btn-xs">菜单</span>
+        {{#  } else if(d.type==1){ }}
+        <span class="layui-btn layui-btn-warm layui-btn-xs">按钮</span>
+        {{#  } }}
+    </script>
+
+    <script>
+        layui.use(['table', 'form', 'jquery', 'treetable', 'common'], function () {
+            let table = layui.table;
+            let form = layui.form;
+            let $ = layui.jquery;
+            let treetable = layui.treetable;
+            let common = layui.common;
+
+            let MODULE_PATH = "/System/SysAction/";
+
+            let cols = [
+                [
+                    { type: 'checkbox' },
+                    { field: 'name', minWidth: 200, title: '权限名称' },
+                    { field: 'code', title: '权限标识' },
+                    { field: 'type', title: '权限类型', templet: '#typeTpl' },
+                    { field: 'sortCode', title: '排序' },
+                    { title: '操作', templet: '#operationTpl', width: 150, align: 'center' }
+                ]
+            ]
+
+            window.render = function () {
+                layer.load(2);
+                treetable.render({
+                    treeColIndex: 1,
+                    treeSpid: 0,
+                    treeIdName: 'id',
+                    treePidName: 'parentId',
+                    skin: 'line',
+                    method: 'post',
+                    treeDefaultClose: true,
+                    toolbar: '#toolbarTpl',
+                    elem: '#tableId',
+                    url: MODULE_PATH + "List",
+                    page: false,
+                    cols: cols,
+                    defaultToolbar: [{
+                        title: '刷新',
+                        layEvent: 'refresh',
+                        icon: 'layui-icon-refresh',
+                    }, 'filter', 'print', 'exports'],
+                    done: function () {
+                        //关闭加载
+                        layer.closeAll('loading');
+                    }
+                });
+            }
+
+            render();
+
+            form.on('submit(search)', function (data) {
+                var keyword = data.field.keyword;
+                var $tds = $('#tableId').next('.treeTable').find('.layui-table-body tbody tr td');
+                if (!keyword) {
+                    $tds.css('background-color', 'transparent');
+                    layer.msg("请输入关键字", { icon: 5 });
+                    return;
+                }
+                var searchCount = 0;
+                $tds.each(function () {
+                    $(this).css('background-color', 'transparent');
+                    if ($(this).text().indexOf(keyword) >= 0) {
+                        $(this).css('background-color', 'rgba(250,230,160,0.5)');
+                        if (searchCount == 0) {
+                            $('body,html').stop(true);
+                            $('body,html').animate({ scrollTop: $(this).offset().top - 150 }, 500);
+                        }
+                        searchCount++;
+                    }
+                });
+                if (searchCount == 0) {
+                    layer.msg("没有匹配结果", { icon: 5 });
+                } else {
+                    treetable.expandAll('#tableId');
+                }
+                return false;
+            });
+
+            table.on('tool(tableId)', function (obj) {
+                if (obj.event === 'delete') {
+                    window.delete(obj.data.id);
+                } else if (obj.event === 'edit') {
+                    window.edit(obj.data.id);
+                }
+            })
+
+            table.on('toolbar(tableId)', function (obj) {
+                if (obj.event === 'create') {
+                    window.create();
+                } else if (obj.event === 'refresh') {
+                    window.refresh();
+                } else if (obj.event === 'batchDel') {
+                    window.batchDel(obj);
+                } else if (obj.event === 'expandAll') {
+                    treetable.expandAll("#tableId");
+                } else if (obj.event === 'foldAll') {
+                    treetable.foldAll("#tableId");
+                }
+            });
+
+            window.create = function () {
+                layer.open({
+                    type: 2,
+                    title: '新增',
+                    shade: 0.1,
+                    area: ['600px', '500px'],
+                    content: MODULE_PATH + 'Create'
+                });
+            }
+
+            window.edit = function (id) {
+                layer.open({
+                    type: 2,
+                    title: '修改',
+                    shade: 0.1,
+                    area: ['600px', '500px'],
+                    content: MODULE_PATH + 'Edit/' + id
+                });
+            }
+
+            window.delete = function (obj) {
+                layer.confirm('确定要删除该用户', { icon: 3, title: '提示' }, function (index) {
+                    common.ajax(MODULE_PATH + "Delete", "post", { id: obj.data.id }, true, true).done(function (response) {
+                        layer.msg(response.msg, { icon: 1, time: 1000 }, function () {
+                            obj.del();
+                        });
+                    }).fail(function (error) {
+                        console.log(error)
+                    });
+                });
+            }
+
+            window.batchDel = function (obj) {
+                var checkStatus = table.checkStatus('tableId');
+                var data = checkStatus.data;
+                if (data.length === 0) {
+                    layer.msg("未选中数据", { icon: 3, time: 1000 });
+                    return false;
+                }
+                let ids = "";
+                for (let i = 0; i < data.length; i++) {
+                    ids += data[i].id + ",";
+                }
+                ids = ids.substr(0, ids.length - 1);
+                layer.confirm('确定要删除这些数据', { icon: 3, title: '提示' }, function (index) {
+                    common.ajax(MODULE_PATH + "batchDel", "post", { idsStr: ids }, true, true).done(function (response) {
+                        layer.msg(response.msg, { icon: 1, time: 1000 }, function () {
+                            refresh();
+                        });
+                    }).fail(function (error) {
+                        console.log(error)
+                    });
+                });
+            }
+
+            window.refresh = function () {
+                window.render();
+            }
+
+        })
+    </script>
+
+}
+

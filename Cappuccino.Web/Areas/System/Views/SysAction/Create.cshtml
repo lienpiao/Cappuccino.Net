@@ -1,0 +1,130 @@
+﻿@model  Cappuccino.ViewModel.ActionViewModel
+
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+
+<form class="layui-form" lay-filter="formCreate">
+    <div class="mainBox">
+        <div class="main-container">
+            <div class="main-container">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">权限类型</label>
+                    <div class="layui-input-block">
+                        @Html.EnumDropDownListFor(model => model.Type, new Dictionary<string, object> { { "lay-filter", "type" } })
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">上级菜单</label>
+                    <div class="layui-input-block">
+                        <ul id="parentIdSelect" class="dtree" data-id="0"></ul>
+                    </div>
+                </div>
+                <div id="actionPartial">
+                    @Html.Partial("_ActionMenuPartial")
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="bottom">
+        <div class="button-container">
+            <button type="submit" class="layui-btn layui-btn-normal layui-btn-sm" lay-submit="" lay-filter="create">
+                <i class="layui-icon layui-icon-ok"></i>
+                提交
+            </button>
+            <button type="reset" class="layui-btn layui-btn-primary layui-btn-sm">
+                <i class="layui-icon layui-icon-refresh"></i>
+                重置
+            </button>
+        </div>
+    </div>
+</form>
+@section Scripts {
+    <script>
+        layui.use(['form', 'jquery', 'common', 'dtree', 'iconPicker'], function () {
+            let form = layui.form;
+            let $ = layui.jquery;
+            let common = layui.common;
+            let dtree = layui.dtree;
+            let iconPicker = layui.iconPicker;
+
+            iconPicker.render({
+                elem: '#icon',
+                type: 'fontClass',
+                search: true,
+                page: true,
+                limit: 16,
+                click: function (data) {
+                    console.log(data);
+                },
+                success: function (d) {
+                    console.log(d);
+                }
+            });
+
+            dtree.render({
+                elem: "#parentIdSelect",
+                method: 'get',
+                url: "/System/SysAction/GetMenuTree",
+                select: true,
+                selectInputName: {
+                    nodeId: "parentId",
+                    context: "parentName"
+                }
+            });
+
+            form.on("select(type)", function (data) {
+                if (data.value == 0) {
+                    $("#actionPartial").load('/System/SysActionMenu/CreateMenuPartial', null, function () {
+                        iconPicker.render({
+                            elem: '#icon',
+                            type: 'fontClass',
+                            search: true,
+                            page: true,
+                            limit: 16,
+                            click: function (data) {
+                                console.log(data);
+                            },
+                            success: function (d) {
+                                console.log(d);
+                            }
+                        });
+                    });
+                }
+                else if (data.value == 1) {
+                    $("#actionPartial").load('/System/SysActionButton/CreateButtonPartial', null, function () {
+                        iconPicker.render({
+                            elem: '#buttonIcon',
+                            type: 'fontClass',
+                            search: true,
+                            page: true,
+                            limit: 16,
+                            click: function (data) {
+                                console.log(data);
+                            },
+                            success: function (d) {
+                                console.log(d);
+                            }
+                        });
+                        form.render('select')
+                    });
+
+                }
+            });
+
+            form.on("submit(create)", function (data) {
+                common.ajax("/System/SysAction/Create", "post", data.field, true, true).done(function (response) {
+                    layer.msg(response.msg, { icon: 1, time: 1000 }, function () {
+                        parent.layer.close(parent.layer.getFrameIndex(window.name));//关闭当前页
+                        parent.refresh();
+                    });
+                }).fail(function (error) {
+                    console.log(error)
+                });
+                return false;
+            });
+        });
+    </script>
+}
+

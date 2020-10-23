@@ -1,0 +1,349 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="layui-row layui-col-space10">
+    <div class="layui-col-md12">
+        <div class="layui-card">
+            <div class="layui-card-body">
+                <form class="layui-form" action="">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">字典名称</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="name" placeholder="" class="layui-input">
+                        </div>
+                        @Html.SearchBtnHtml()
+                        @Html.ResetBtnHtml()
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="layui-col-md6">
+        <div class="layui-card">
+            <div class="layui-card-body">
+                <table id="tableTypeId" lay-filter="tableTypeFilter"></table>
+            </div>
+        </div>
+    </div>
+    <div class="layui-col-md6">
+        <div class="layui-card">
+            <div class="layui-card-body">
+                <svg class="empty" style="margin-top: 50px;margin-left: 220px;margin-bottom: 80px;" width="184" height="152"
+                     viewBox="0 0 184 152" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="none" fillRule="evenodd">
+                        <g transform="translate(24 31.67)">
+                            <ellipse fillOpacity=".8" fill="#F5F5F7" cx="67.797" cy="106.89" rx="67.797" ry="12.668"></ellipse>
+                            <path d="M122.034 69.674L98.109 40.229c-1.148-1.386-2.826-2.225-4.593-2.225h-51.44c-1.766 0-3.444.839-4.592 2.225L13.56 69.674v15.383h108.475V69.674z"
+                                  fill="#AEB8C2"></path>
+                            <path d="M101.537 86.214L80.63 61.102c-1.001-1.207-2.507-1.867-4.048-1.867H31.724c-1.54 0-3.047.66-4.048 1.867L6.769 86.214v13.792h94.768V86.214z"
+                                  fill="url(#linearGradient-1)" transform="translate(13.56)"></path>
+                            <path d="M33.83 0h67.933a4 4 0 0 1 4 4v93.344a4 4 0 0 1-4 4H33.83a4 4 0 0 1-4-4V4a4 4 0 0 1 4-4z" fill="#F5F5F7"></path>
+                            <path d="M42.678 9.953h50.237a2 2 0 0 1 2 2V36.91a2 2 0 0 1-2 2H42.678a2 2 0 0 1-2-2V11.953a2 2 0 0 1 2-2zM42.94 49.767h49.713a2.262 2.262 0 1 1 0 4.524H42.94a2.262 2.262 0 0 1 0-4.524zM42.94 61.53h49.713a2.262 2.262 0 1 1 0 4.525H42.94a2.262 2.262 0 0 1 0-4.525zM121.813 105.032c-.775 3.071-3.497 5.36-6.735 5.36H20.515c-3.238 0-5.96-2.29-6.734-5.36a7.309 7.309 0 0 1-.222-1.79V69.675h26.318c2.907 0 5.25 2.448 5.25 5.42v.04c0 2.971 2.37 5.37 5.277 5.37h34.785c2.907 0 5.277-2.421 5.277-5.393V75.1c0-2.972 2.343-5.426 5.25-5.426h26.318v33.569c0 .617-.077 1.216-.221 1.789z"
+                                  fill="#DCE0E6"></path>
+                        </g>
+                        <path d="M149.121 33.292l-6.83 2.65a1 1 0 0 1-1.317-1.23l1.937-6.207c-2.589-2.944-4.109-6.534-4.109-10.408C138.802 8.102 148.92 0 161.402 0 173.881 0 184 8.102 184 18.097c0 9.995-10.118 18.097-22.599 18.097-4.528 0-8.744-1.066-12.28-2.902z"
+                              fill="#DCE0E6"></path>
+                        <g transform="translate(149.65 15.383)" fill="#FFF">
+                            <ellipse cx="20.654" cy="3.167" rx="2.849" ry="2.815"></ellipse>
+                            <path d="M5.698 5.63H0L2.898.704zM9.259.704h4.985V5.63H9.259z"></path>
+                        </g>
+                    </g>
+                </svg>
+                <table id="tableId" lay-filter="tableFilter"></table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+    <script type="text/html" id="toolbarTypeTpl">
+        @Html.TopToolBarHtml(ViewData["TopButtonList"])
+    </script>
+
+    <script type="text/html" id="operationTypeTpl">
+        @Html.RightToolBarHtml(ViewData["RightButtonList"])
+        <button class="pear-btn pear-btn-warming pear-btn-sm" lay-event="details">
+            <i class="layui-icon layui-icon-transfer"></i>
+        </button>
+    </script>
+
+    <script type="text/html" id="toolbarTpl">
+        @Html.TopToolBarHtml(ViewData["TopButtonList"])
+    </script>
+
+    <script type="text/html" id="operationTpl">
+        @Html.RightToolBarHtml(ViewData["RightButtonList"])
+    </script>
+
+    <script>
+        layui.use(['table', 'form', 'jquery', 'common'], function () {
+            let table = layui.table;
+            let form = layui.form;
+            let $ = layui.jquery;
+            let common = layui.common;
+
+            let MODULE_PATH = "/System/";
+
+            let typeId;
+
+            let typeCols = [
+                [{
+                    type: 'checkbox'
+                },
+                {
+                    title: '字典名称',
+                    field: 'name',
+                    align: 'center',
+                    width: 120
+                },
+                {
+                    title: '字典编码',
+                    field: 'code',
+                    align: 'center'
+                },
+                {
+                    title: '排序码',
+                    field: 'sortCode',
+                    align: 'center',
+                    templet: '#dict-type-enable'
+                },
+                {
+                    title: '操作',
+                    toolbar: '#operationTypeTpl',
+                    align: 'center',
+                    width: 180
+                }
+                ]
+            ];
+
+            let cols = [
+                [{
+                    type: 'checkbox'
+                },
+                {
+                    title: '标签',
+                    field: 'name',
+                    align: 'center',
+                    width: 120
+                },
+                {
+                    title: '对应值',
+                    field: 'code',
+                    align: 'center'
+                },
+                {
+                    title: '排序码',
+                    field: 'sortCode',
+                    align: 'center',
+                },
+                {
+                    title: '操作',
+                    toolbar: '#operationTpl',
+                    align: 'center',
+                    width: 180
+                }
+                ]
+            ];
+
+            table.render({
+                elem: '#tableTypeId',
+                url: MODULE_PATH + "SysDictType/List",
+                page: true,
+                cols: typeCols,
+                skin: 'line',
+                height: 'full-148',
+                toolbar: '#toolbarTypeTpl',
+                defaultToolbar: [{
+                    layEvent: 'refresh',
+                    icon: 'layui-icon-refresh',
+                }, 'filter', 'print', 'exports']
+            });
+
+            window.renderData = function (id) {
+
+                typeId = id;
+                $(".empty").hide();
+
+                table.render({
+                    elem: '#tableId',
+                    url: MODULE_PATH + "SysDict/List?typeId=" + typeId,
+                    page: true,
+                    height: 'full-148',
+                    cols: cols,
+                    skin: 'line',
+                    toolbar: '#toolbarTpl'
+                });
+            }
+
+            table.on('tool(tableTypeFilter)', function (obj) {
+                let data = obj.data;
+                if (obj.event === 'delete') {
+                    window.deleteType(data.id);
+                } else if (obj.event === 'edit') {
+                    window.editType(data.id);
+                } else if (obj.event === 'details') {
+                    window.renderData(obj.data.id)
+                }
+            });
+
+            table.on('toolbar(tableTypeFilter)', function (obj) {
+                if (obj.event === 'create') {
+                    window.createType();
+                } else if (obj.event === 'refresh') {
+                    window.refreshType();
+                } else if (obj.event === 'batchDel') {
+                    window.batchDelType(obj);
+                }
+            });
+
+            window.createType = function () {
+                layer.open({
+                    type: 2,
+                    title: '新增',
+                    shade: 0.1,
+                    area: ['600px', '500px'],
+                    content: MODULE_PATH + 'SysDictType/Create'
+                });
+            }
+
+            window.editType = function (id) {
+                layer.open({
+                    type: 2,
+                    title: '修改',
+                    shade: 0.1,
+                    area: ['600px', '500px'],
+                    content: MODULE_PATH + 'SysDictType/Edit/' + id
+                });
+            }
+
+            window.deleteType = function (id) {
+                layer.confirm('确定要删除该字典分类', { icon: 3, title: '提示' }, function (index) {
+                    common.ajax(MODULE_PATH + "SysDictType/Delete", "post", { id: id }, true, true).done(function (response) {
+                        layer.msg(response.msg, { icon: 1, time: 1000 }, function () {
+                            table.reload('tableTypeId');
+                        });
+                    }).fail(function (error) {
+                        console.log(error)
+                    });
+                });
+            }
+
+            window.batchDelType = function (obj) {
+                let data = table.checkStatus(obj.config.id).data;
+                if (data.length === 0) {
+                    layer.msg("未选中数据", { icon: 3, time: 1000 });
+                    return false;
+                }
+                let ids = "";
+                for (let i = 0; i < data.length; i++) {
+                    ids += data[i].id + ",";
+                }
+                ids = ids.substr(0, ids.length - 1);
+                layer.confirm('确定要删除这些数据', { icon: 3, title: '提示' }, function (index) {
+                    common.ajax(MODULE_PATH + "SysDictType/batchDel", "post", { idsStr: ids }, true, true).done(function (response) {
+                        layer.msg(response.msg, { icon: 1, time: 1000 }, function () {
+                            table.reload('tableTypeId');
+                        });
+                    }).fail(function (error) {
+                        console.log(error)
+                    });
+                });
+            }
+
+            window.refreshType = function () {
+                table.reload('tableTypeId');
+            }
+
+
+            window.create = function () {
+                layer.open({
+                    type: 2,
+                    title: '新增',
+                    shade: 0.1,
+                    area: ['600px', '500px'],
+                    content: MODULE_PATH + 'SysDict/Create?TypeId=' + typeId
+                });
+            }
+
+            window.edit = function (id) {
+                layer.open({
+                    type: 2,
+                    title: '修改',
+                    shade: 0.1,
+                    area: ['600px', '500px'],
+                    content: MODULE_PATH + 'SysDict/Edit/' + id
+                });
+            }
+
+            window.delete = function (id) {
+                layer.confirm('确定要删除该字典分类', { icon: 3, title: '提示' }, function (index) {
+                    common.ajax(MODULE_PATH + "SysDict/Delete", "post", { id: id }, true, true).done(function (response) {
+                        layer.msg(response.msg, { icon: 1, time: 1000 }, function () {
+                            table.reload('tableId');
+                        });
+                    }).fail(function (error) {
+                        console.log(error)
+                    });
+                });
+            }
+
+            window.batchDel = function (obj) {
+                let data = table.checkStatus(obj.config.id).data;
+                if (data.length === 0) {
+                    layer.msg("未选中数据", { icon: 3, time: 1000 });
+                    return false;
+                }
+                let ids = "";
+                for (let i = 0; i < data.length; i++) {
+                    ids += data[i].id + ",";
+                }
+                ids = ids.substr(0, ids.length - 1);
+                layer.confirm('确定要删除这些数据', { icon: 3, title: '提示' }, function (index) {
+                    common.ajax(MODULE_PATH + "SysDict/batchDel", "post", { idsStr: ids }, true, true).done(function (response) {
+                        layer.msg(response.msg, { icon: 1, time: 1000 }, function () {
+                            table.reload('tableId');
+                        });
+                    }).fail(function (error) {
+                        console.log(error)
+                    });
+                });
+            }
+
+            table.on('tool(tableFilter)', function (obj) {
+                let data = obj.data;
+                if (obj.event === 'delete') {
+                    window.delete(data.id);
+                } else if (obj.event === 'edit') {
+                    window.edit(data.id);
+                }
+            });
+
+            table.on('toolbar(tableFilter)', function (obj) {
+                if (obj.event === 'create') {
+                    window.create();
+                } else if (obj.event === 'refresh') {
+                    window.refresh();
+                } else if (obj.event === 'batchDel') {
+                    window.batchDel(obj);
+                }
+            });
+
+            form.on('submit(search)', function (data) {
+                data.field.typeId = typeId;
+                table.reload('tableTypeId', {
+                    where: data.field
+                })
+                return false;
+            });
+
+            window.refresh = function () {
+                table.reload('tableId');
+            }
+        })
+    </script>
+}

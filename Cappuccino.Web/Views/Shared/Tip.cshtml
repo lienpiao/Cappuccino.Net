@@ -1,0 +1,33 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>未登录提示</title>
+    <link href="~/Content/component/layui/css/layui.css" rel="stylesheet" />
+</head>
+<body>
+    <script src="~/Content/component/layui/layui.js"></script>
+    <script>
+        //一般直接写在一个js文件中
+        layui.use(['layer'], function () {
+            var layer = layui.layer;
+            //一般直接写在一个js文件中
+            layer.confirm('您未登录，即将跳转到登录页面', {
+                btn: ['确定']
+            }, function () {
+                toUrl()
+            });
+            setTimeout(toUrl, 2000);
+        });
+        function toUrl() {
+            window.top.location = "/Account/Login";
+        }
+    </script>
+</body>
+</html>

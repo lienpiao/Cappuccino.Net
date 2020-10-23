@@ -1,0 +1,91 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+﻿@model Cappuccino.ViewModel.LoginViewModel
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Login Page</title>
+    <link rel="stylesheet" href="~/Content/component/pear/css/pear.css" />
+    <link rel="stylesheet" href="~/Content/admin/css/other/login.css" />
+</head>
+
+
+<!-- 代 码 结 构 -->
+<body background="~/Content/admin/images/background.svg">
+    <form class="layui-form" action="javascript:void(0);" lay-filter="formLogon">
+        <div class="layui-form-item">
+            <img class="logo" src="~/Content/admin/images/logo.png" />
+            <div class="title">Cappuccino.Net</div>
+            <div class="desc">
+                ASP.NET MVC 5 + Entity Framework 6
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <input name="LoginName" lay-verify="required" placeholder="账 户 : admin " hover class="layui-input" />
+        </div>
+        <div class="layui-form-item">
+            <input type="password" name="LoginPassword" lay-verify="required|password" placeholder="密 码 : admin " hover class="layui-input" />
+        </div>
+        <div class="layui-form-item">
+            <input name="VerifyCode" lay-verify="required" placeholder="验证码 : " hover class="code layui-input layui-input-inline" />
+            <img src="@Url.Action("CreateVerifyCode","Account")" class="codeImage" onclick="resetVCode()" />
+        </div>
+        <div class="layui-form-item">
+            <input type="checkbox" name="IsMember" value="true" title="记住密码" lay-filter="RememberMe" lay-skin="primary" @(Model.IsMember ? "checked" : "")>
+        </div>
+        <div class="layui-form-item">
+            <button id="btnLogin" class="pear-btn pear-btn-success login" lay-submit lay-filter="login">
+                登 入
+            </button>
+        </div>
+    </form>
+    <!-- 资 源 引 入 -->
+    <script src="~/Content/component/layui/layui.js"></script>
+    <script src="~/Content/component/pear/pear.js"></script>
+    <script>
+        layui.use(['form', 'element', 'jquery', 'common', 'popup'], function () {
+            var form = layui.form;
+            var element = layui.element;
+            var common = layui.common;
+            var popup = layui.popup;
+            var $ = layui.jquery;
+
+            //给表单赋值
+            form.val("formLogon", {
+                "LoginName": "@Model.LoginName",
+             });
+
+            //数据校验
+            form.verify({
+                password: [/^[\S]{6,12}$/, "密码必须6到12位，且不能出现空格"],
+            });
+
+            //刷新验证码
+            window.resetVCode = function () {
+                var url = "@Url.Action("CreateVerifyCode","Account")?rid=" + Math.random()
+                $(".codeImage").attr("src", url);
+            };
+
+            // 登 录 提 交
+            form.on('submit(login)', function (data) {
+                common.ajax("@Url.Action("Login","Account")", "post", data.field, true, true).done(function (response) {
+                            popup.success("登录成功", function() {
+							        window.location = "/Home";
+					        });
+                }).fail(function (error) {
+                    console.log(error)
+                    //刷新二维码
+                    resetVCode()
+                });
+
+                return false;
+            });
+
+        })
+    </script>
+</body>
+</html>
+

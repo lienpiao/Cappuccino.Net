@@ -1,0 +1,104 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="layui-card">
+    <div class="layui-card-body">
+        <form class="layui-form" action="">
+            <div class="layui-form-item">
+                <div class="layui-form-item layui-inline">
+                    <label class="layui-form-label">账户</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="account" placeholder="请输入账户" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-inline">
+                    <label class="layui-form-label">姓名</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="realName" placeholder="请输入姓名" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-inline">
+                    <label class="layui-form-label">日期范围</label>
+                    <div class="layui-input-inline">
+                        <input class="layui-input" placeholder="日期范围" autocomplete="off" name="startEndDate" id="startEndDate">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-inline">
+                    @Html.SearchBtnHtml()
+                    @Html.ResetBtnHtml()
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="layui-card">
+    <div class="layui-card-body">
+        <table id="tableId" lay-filter="tableFilter"></table>
+    </div>
+</div>
+@section Scripts {
+
+    <!-- 头工具栏模板 -->
+    <script type="text/html" id="toolbarTpl">
+        @Html.TopToolBarHtml(ViewData["TopButtonList"])
+    </script>
+
+    <script>
+        layui.use(['table', 'form', 'laydate'], function () {
+            let table = layui.table;
+            let form = layui.form;
+            let laydate = layui.laydate;
+
+            let MODULE_PATH = "/System/SysLogLogon/";
+
+            laydate.render({
+                elem: '#startEndDate'
+                , range: '~'
+            });
+
+            let cols = [
+                [
+                    { type: 'checkbox' },
+                    { title: 'ID', field: 'id', align: 'center', width: 100, sort: true },
+                    { title: '登录类型', field: 'logType', align: 'center' },
+                    { title: '账户', field: 'account', align: 'center' },
+                    { title: '姓名', field: 'realName', align: 'center' },
+                    { title: '描述', field: 'description', align: 'center' },
+                    { title: 'IP地址', field: 'ipAddress', align: 'center' },
+                    { title: 'IP所在城市', field: 'ipAddressName', align: 'center' },
+                    { title: '创建时间', field: 'createTime', align: 'center' }                ]
+            ]
+
+            table.render({
+                elem: '#tableId',
+                url: MODULE_PATH + "List",
+                page: true,
+                cols: cols,
+                skin: 'line',
+                toolbar: '#toolbarTpl',
+                defaultToolbar: [{
+                    layEvent: 'refresh',
+                    icon: 'layui-icon-refresh',
+                }, 'filter', 'print', 'exports']
+            });
+
+            table.on('toolbar(tableFilter)', function (obj) {
+                if (obj.event === 'refresh') {
+                    window.refresh();
+                }
+            });
+
+            form.on('submit(search)', function (data) {
+                table.reload('tableId', { where: data.field })
+                return false;
+            });
+
+            window.refresh = function () {
+                table.reload('tableId');
+            }
+        })
+    </script>
+
+}

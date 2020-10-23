@@ -1,0 +1,71 @@
+﻿@model Cappuccino.ViewModel.SysDictTypeViewModel
+@{
+    ViewBag.Title = "Edit";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<form class="layui-form" lay-filter="formEdit">
+    @Html.HiddenFor(x => x.Id)
+    <div class="mainBox">
+        <div class="main-container">
+            <div class="main-container">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">字典名称</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="name" lay-verify="required" autocomplete="off" placeholder="请输入字典名称" class="layui-input" value="@Model.Name">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">字典编码</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="code" lay-verify="required" autocomplete="off" placeholder="请输入字典编码" class="layui-input" value="@Model.Code">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">排序码</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="sortCode" placeholder="排序码" autocomplete="off" class="layui-input" lay-verify="number" maxlength="2">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="bottom">
+        <div class="button-container">
+            <button type="submit" class="layui-btn layui-btn-normal layui-btn-sm" lay-submit="" lay-filter="edit">
+                <i class="layui-icon layui-icon-ok"></i>
+                提交
+            </button>
+            <button type="reset" class="layui-btn layui-btn-primary layui-btn-sm">
+                <i class="layui-icon layui-icon-refresh"></i>
+                重置
+            </button>
+        </div>
+    </div>
+</form>
+@section Scripts {
+    <script>
+        layui.use(['form', 'jquery', 'common'], function () {
+            let form = layui.form;
+            let $ = layui.jquery;
+            let common = layui.common;
+
+             form.val("formEdit", {
+                "sortCode": "@Model.SortCode"
+             });
+
+            form.on("submit(edit)", function (data) {
+                common.ajax("/System/SysDictType/Edit", "post", data.field, true, true).done(function (response) {
+                    layer.msg(response.msg, { icon: 1, time: 1000 }, function () {
+                        parent.layer.close(parent.layer.getFrameIndex(window.name));//关闭当前页
+                        parent.layui.table.reload("tableTypeId");
+                    });
+                    }).fail(function (error) {
+                        console.log(error)
+                    });
+                    return false;
+                });
+            });
+
+    </script>
+}
+

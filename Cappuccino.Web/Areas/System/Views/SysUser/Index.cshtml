@@ -1,0 +1,219 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section style{
+    <style>
+        .header-img {
+            width: 30px;
+            height: 30px;
+            border-radius: 100px;
+        }
+    </style>
+}
+
+<div class="layui-card">
+    <div class="layui-card-body">
+        <form class="layui-form" action="">
+            <div class="layui-form-item">
+                <div class="layui-form-item layui-inline">
+                    <label class="layui-form-label">帐号</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="UserName" placeholder="" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-inline">
+                    <label class="layui-form-label">昵称</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="NickName" placeholder="" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-inline">
+                    @Html.SearchBtnHtml()
+                    @Html.ResetBtnHtml()
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="layui-card">
+    <div class="layui-card-body">
+        <table id="tableId" lay-filter="tableFilter"></table>
+    </div>
+</div>
+@section Scripts {
+
+    <!-- 头工具栏模板 -->
+    <script type="text/html" id="toolbarTpl">
+        @Html.TopToolBarHtml(ViewData["TopButtonList"])
+    </script>
+
+    <!-- 行工具栏模板 -->
+    <script type="text/html" id="operationTpl">
+        @Html.RightToolBarHtml(ViewData["RightButtonList"])
+    </script>
+
+    <!-- 启用|停用模板 -->
+    <script type="text/html" id="enabledMarkTpl">
+        {{#  if(d.enabledMark){ }}
+        <input type="checkbox" name="enabledMark" value="{{d.id}}" lay-skin="switch" lay-text="启用|禁用" lay-filter="enabledMark" checked>
+        {{#  } else{ }}
+        <input type="checkbox" name="enabledMark" value="{{d.id}}" lay-skin="switch" lay-text="启用|禁用" lay-filter="enabledMark">
+        {{#  } }}
+    </script>
+
+    <!-- 头像模板 -->
+    <script type="text/html" id="headIconTpl">
+        <image src="{{d.headIcon}}" class="header-img"/>
+    </script>
+
+    <script>
+        layui.use(['table', 'form', 'jquery', 'common'], function () {
+            let table = layui.table;
+            let form = layui.form;
+            let $ = layui.jquery;
+            let common = layui.common;
+
+            let MODULE_PATH = "/System/SysUser/";
+
+            let cols = [
+                [
+                    { type: 'checkbox' },
+                    { title: 'ID', field: 'id', align: 'center', width: 100, sort: true },
+                    { title: '账号', field: 'userName', align: 'center' },
+                    { title: '昵称', field: 'nickName', align: 'center' },
+                    { title: '头像', field: 'headIcon', align: 'center', templet: '#headIconTpl' },
+                    { title: '手机号码', field: 'mobilePhone', align: 'center' },
+                    { title: '邮箱', field: 'email', align: 'center' },
+                    { title: '是否可用', field: 'enabledMark', align: 'center', templet: '#enabledMarkTpl' },
+                    { title: '操作', toolbar: '#operationTpl', align: 'center', width: 195 }
+                ]
+            ]
+
+            table.render({
+                elem: '#tableId',
+                url: MODULE_PATH + "List",
+                page: true,
+                cols: cols,
+                skin: 'line',
+                toolbar: '#toolbarTpl',
+                defaultToolbar: [{
+                    layEvent: 'refresh',
+                    icon: 'layui-icon-refresh',
+                }, 'filter', 'print', 'exports']
+            });
+
+            table.on('tool(tableFilter)', function (obj) {
+                let data = obj.data;
+                if (obj.event === 'delete') {
+                    window.delete(data.id);
+                } else if (obj.event === 'edit') {
+                    window.edit(data.id);
+                } else if (obj.event === 'assign') {
+                    window.assign(data.id);
+                }
+            });
+
+            table.on('toolbar(tableFilter)', function (obj) {
+                if (obj.event === 'create') {
+                    window.create();
+                } else if (obj.event === 'refresh') {
+                    window.refresh();
+                } else if (obj.event === 'batchDel') {
+                    window.batchDel(obj);
+                }
+            });
+
+            form.on('submit(search)', function (data) {
+                table.reload('tableId', { where: data.field })
+                return false;
+            });
+
+            form.on('switch(enabledMark)', function (obj) {
+                layer.confirm('确定更改状态', { icon: 3, title: '提示' }, function (index) {
+                    common.ajax(MODULE_PATH + "UpdateEnabledMark", "post", { id: parseInt(obj.value), enabledMark: obj.elem.checked * 1 }, true, true).done(function (response) {
+                        layer.msg(response.msg, { icon: 1 });
+                    }).fail(function (error) {
+                        $(obj.elem).prop('checked', !obj.elem.checked);
+                        form.render('checkbox');
+                        console.log(error)
+                    });
+                }, function () {
+                    $(obj.elem).prop('checked', !obj.elem.checked);
+                    form.render('checkbox');
+                })
+            });
+
+            window.create = function () {
+                layer.open({
+                    type: 2,
+                    title: '新增',
+                    shade: 0.1,
+                    area: ['600px', '500px'],
+                    content: MODULE_PATH + 'Create'
+                });
+            }
+
+            window.assign = function (id) {
+                layer.open({
+                    type: 2,
+                    title: '授权',
+                    shade: 0.1,
+                    area: ['800px', '600px'],
+                    content: MODULE_PATH + 'Assign/' + id
+                });
+            }
+
+            window.edit = function (id) {
+                layer.open({
+                    type: 2,
+                    title: '修改',
+                    shade: 0.1,
+                    area: ['600px', '500px'],
+                    content: MODULE_PATH + 'Edit/' + id
+                });
+            }
+
+            window.delete = function (id) {
+                layer.confirm('确定要删除该用户', { icon: 3, title: '提示' }, function (index) {
+                    common.ajax(MODULE_PATH + "Delete", "post", { id: id }, true, true).done(function (response) {
+                        layer.msg(response.msg, { icon: 1, time: 1000 }, function () {
+                            table.reload('tableId');
+                        });
+                    }).fail(function (error) {
+                        console.log(error)
+                    });
+                });
+            }
+
+            window.batchDel = function (obj) {
+                let data = table.checkStatus(obj.config.id).data;
+                if (data.length === 0) {
+                    layer.msg("未选中数据", { icon: 3, time: 1000 });
+                    return false;
+                }
+                let ids = "";
+                for (let i = 0; i < data.length; i++) {
+                    ids += data[i].id + ",";
+                }
+                ids = ids.substr(0, ids.length - 1);
+                layer.confirm('确定要删除这些用户', { icon: 3, title: '提示' }, function (index) {
+                    common.ajax(MODULE_PATH + "batchDel", "post", { idsStr: ids }, true, true).done(function (response) {
+                        layer.msg(response.msg, { icon: 1, time: 1000 }, function () {
+                            table.reload('tableId');
+                        });
+                    }).fail(function (error) {
+                        console.log(error)
+                    });
+                });
+            }
+
+            window.refresh = function () {
+                table.reload('tableId');
+            }
+        })
+    </script>
+
+}

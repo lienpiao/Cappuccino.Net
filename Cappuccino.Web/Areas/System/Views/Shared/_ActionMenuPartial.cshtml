@@ -1,0 +1,33 @@
+﻿@{
+    Layout = null;
+}
+<div class="layui-form-item">
+    <label class="layui-form-label">菜单名称</label>
+    <div class="layui-input-block">
+        <input type="text" name="name" lay-verify="required" autocomplete="off" placeholder="请输入菜单名称" class="layui-input">
+    </div>
+</div>
+<div class="layui-form-item">
+    <label class="layui-form-label">权限标识</label>
+    <div class="layui-input-block">
+        <input type="text" name="code" lay-verify="required" autocomplete="off" placeholder="请输入权限标识" class="layui-input">
+    </div>
+</div>
+<div class="layui-form-item">
+    <label class="layui-form-label">排序码</label>
+    <div class="layui-input-block">
+        <input type="text" name="sortCode" placeholder="排序码" autocomplete="off" class="layui-input" lay-verify="number" maxlength="2">
+    </div>
+</div>
+<div class="layui-form-item">
+    <label class="layui-form-label">菜单图标</label>
+    <div class="layui-input-block">
+        <input type="text" id="icon" name="icon" value="layui-icon-face-smile" lay-filter="icon" style="display: none;">
+    </div>
+</div>
+<div class="layui-form-item">
+    <label class="layui-form-label">路径</label>
+    <div class="layui-input-block">
+        <input type="text" name="url" autocomplete="off" placeholder="请输入路径" class="layui-input">
+    </div>
+</div>
