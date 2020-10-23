@@ -9,3 +9,7 @@ ASP.NET MVC 5 + Entity Framework 6 Code First + Pear Admin Layui  后台管理�
 
 3.默认账号：admin，默认密码：123456
 
+####  预览图
+
+![show2](https://github.com/Goosander/Cappuccino.Net/blob/main/Cappuccino.Web/Content/admin/images/show2.png)
+
