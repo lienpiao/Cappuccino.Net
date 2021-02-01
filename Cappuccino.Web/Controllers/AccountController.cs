@@ -10,6 +10,8 @@ using System.Linq;
 using System.Web.Mvc;
 using Cappuccino.ViewModel;
 using Cappuccino.Common.Log;
+using Cappuccino.Common.Caching;
+using System.Collections.Generic;
 
 namespace Cappuccino.Web.Controllers
 {
@@ -58,15 +60,27 @@ namespace Cappuccino.Web.Controllers
                 if (result)
                 {
                     var user = SysUserService.GetList(x => x.UserName == loginViewModel.LoginName).FirstOrDefault();
-                    SessionHelper.Set(KeyManager.UserInfo, user);
+                    string userLoginId = Guid.NewGuid().ToString();
                     if (loginViewModel.IsMember)
                     {
-                        string userId = DESUtils.Encrypt(user.Id.ToString());
-                        CookieHelper.Set(KeyManager.IsMember, userId, 60 * 24 * 3);
+                        List<string> list = new List<string>
+                        {
+                            userLoginId,
+                            "0"
+                        };
+                        CookieHelper.Set(KeyManager.IsMember, DESUtils.Encrypt(list.ToJson()));
+                        CacheManager.Set(userLoginId, user, new TimeSpan(10, 0, 0, 0));
                     }
                     else
                     {
                         CookieHelper.Remove(KeyManager.IsMember);
+                        List<string> list = new List<string>
+                        {
+                            userLoginId,
+                            "1"
+                        };
+                        CookieHelper.Set(KeyManager.IsMember, DESUtils.Encrypt(list.ToJson()), 30);
+                        CacheManager.Set(userLoginId, user, new TimeSpan(0, 30, 0));
                     }
                     SysLogLogonService.WriteDbLog(new SysLogLogon
                     {
@@ -121,7 +135,7 @@ namespace Cappuccino.Web.Controllers
                 RealName = UserManager.GetCurrentUserInfo().NickName,
                 Description = "安全退出系统",
             });
-            SessionHelper.Remove(KeyManager.UserInfo);
+            CacheManager.Remove(UserManager.GetCurrentUserCacheId());
             CookieHelper.Remove(KeyManager.IsMember);
             return RedirectToAction("Login", "Account");
         }
@@ -147,7 +161,34 @@ namespace Cappuccino.Web.Controllers
             }
             else
             {
-                result = SysUserService.ModifyUserPwd(userId, viewModel) ? WriteSuccess("密码修改成功") : WriteError("密码修改失败");
+                if (SysUserService.ModifyUserPwd(userId, viewModel))
+                {
+                    result = WriteSuccess("密码修改成功");
+                    List<string> list = DESUtils.Decrypt(CookieHelper.Get(KeyManager.IsMember)).ToList<string>();
+                    if (list == null || list.Count() != 2)
+                    {
+                        //获取缓存的用户信息
+                        SysUser userinfo = CacheManager.Get<SysUser>(list[0]);
+                        //删除缓存的用户信息
+                        CacheManager.Remove(list[0]);
+                        //更新缓存用户信息的KEY
+                        list[0] = Guid.NewGuid().ToString();
+                        if (list[1] == "0")
+                        {
+                            CacheManager.Set(list[0], userinfo, new TimeSpan(10, 0, 0, 0));
+                            CookieHelper.Set(KeyManager.IsMember, DESUtils.Encrypt(list.ToJson()));
+                        }
+                        else if (list[1] == "1")
+                        {
+                            CacheManager.Set(list[0], userinfo, new TimeSpan(0, 30, 0));
+                            CookieHelper.Set(KeyManager.IsMember, DESUtils.Encrypt(list.ToJson()), 30);
+                        }
+                    }
+                }
+                else
+                {
+                    result = WriteError("密码修改失败");
+                }
             }
             return result;
         }

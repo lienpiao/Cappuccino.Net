@@ -2,8 +2,10 @@
 using Cappuccino.Common;
 using Cappuccino.Common.Caching;
 using Cappuccino.Common.Enum;
+using Cappuccino.Common.Helper;
 using Cappuccino.Common.Util;
 using Cappuccino.IBLL;
+using Cappuccino.Model;
 using Cappuccino.Web.Core;
 using System;
 using System.Collections.Generic;
@@ -30,22 +32,26 @@ namespace Cappuccino.Web.Core
                 return;
             }
 
-            var container = CacheManager.Get<IContainer>(KeyManager.AutofacContainer);
-
-            //判断session是否为null
-            if (filterContext.HttpContext.Session[KeyManager.UserInfo] == null)
+            if (!string.IsNullOrEmpty(CookieHelper.Get(KeyManager.IsMember)))
             {
-                if (filterContext.HttpContext.Request.Cookies[KeyManager.IsMember] != null)
+                List<string> list = DESUtils.Decrypt(CookieHelper.Get(KeyManager.IsMember)).ToList<string>();
+                if (list == null || list.Count() != 2)
                 {
-                    //取出cookie中存入的uid的值
-                    string uId = DESUtils.Decrypt(filterContext.HttpContext.Request.Cookies[KeyManager.IsMember].Value);
-                    //根据uid查询出用户的实体
-                    ISysUserService userService = container.Resolve<ISysUserService>();
-                    int userId = int.Parse(uId);
-                    var userinfo = userService.GetList(c => c.Id == userId).FirstOrDefault();
-                    if (userinfo != null)
+                    ToLogin(filterContext);
+                }
+                SysUser userinfo = CacheManager.Get<SysUser>(list[0]);
+                if (userinfo != null)
+                {
+                    // 0为永久key
+                    if (list[1] == "0")
                     {
-                        filterContext.HttpContext.Session[KeyManager.UserInfo] = userinfo;
+                        CacheManager.Set(list[0], userinfo, new TimeSpan(10, 0, 0, 0));
+                    }
+                    // 1为滑动key
+                    else if (list[1] == "1")
+                    {
+                        CacheManager.Set(list[0], userinfo, new TimeSpan(0, 30, 0));
+                        CookieHelper.Set(KeyManager.IsMember, DESUtils.Encrypt(list.ToJson()), 30);
                     }
                     else
                     {
@@ -56,7 +62,10 @@ namespace Cappuccino.Web.Core
                 {
                     ToLogin(filterContext);
                 }
-                return;
+            }
+            else
+            {
+                ToLogin(filterContext);
             }
 
             //获得当前要执行的Action上标注的CheckPermissionAttribute实例对象
@@ -67,6 +76,7 @@ namespace Cappuccino.Web.Core
                 return;
             }
 
+            var container = CacheManager.Get<IContainer>(KeyManager.AutofacContainer);
             ISysActionService sysActionService = container.Resolve<ISysActionService>();
 
             //检查是否有权限
