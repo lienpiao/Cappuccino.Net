@@ -37,7 +37,7 @@ namespace Cappuccino.Web.Core
         public static string GetCurrentUserCacheId()
         {
             List<string> list = DESUtils.Decrypt(CookieHelper.Get(KeyManager.IsMember)).ToList<string>();
-            if (list != null || list.Count() != 2)
+            if (list != null && list.Count() == 2)
             {
                 return list[0];
             }

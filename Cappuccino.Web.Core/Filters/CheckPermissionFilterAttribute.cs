@@ -38,6 +38,7 @@ namespace Cappuccino.Web.Core
                 if (list == null || list.Count() != 2)
                 {
                     ToLogin(filterContext);
+                    return;
                 }
                 SysUser userinfo = CacheManager.Get<SysUser>(list[0]);
                 if (userinfo != null)
@@ -56,16 +57,19 @@ namespace Cappuccino.Web.Core
                     else
                     {
                         ToLogin(filterContext);
+                        return;
                     }
                 }
                 else
                 {
                     ToLogin(filterContext);
+                    return;
                 }
             }
             else
             {
                 ToLogin(filterContext);
+                return;
             }
 
             //获得当前要执行的Action上标注的CheckPermissionAttribute实例对象
