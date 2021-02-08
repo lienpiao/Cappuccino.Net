@@ -67,94 +67,125 @@ namespace Cappuccino.DAL.Migrations
             #endregion
 
             #region 权限管理
-            var sysActions = new List<SysAction>
+            //目录
+            var sysActionsByCatalog = new List<SysAction>
             {
-                   new SysAction{Id=1,Name="系统管理",Code="system",ParentId=0,Type=0,SortCode=1,
-                   SysActionMenu=new SysActionMenu{Icon="layui-icon-set-fill" },
-                   CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
-                   new SysAction{Id=2,Name="用户管理",Code="system.user.list",ParentId=1,Type=0,SortCode=1
-                   ,SysActionMenu=new SysActionMenu{Icon="layui-icon-face-cry",Url="/System/SysUser" }
-                   ,CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
-                   new SysAction{Id=8,Name="新增",Code="system.user.create",ParentId=2,Type=ActionTypeEnum.Button,SortCode=1,
-                   SysActionButton=new SysActionButton{ButtonCode="create",Location=PositionEnum.FormRightTop,ButtonClass="pear-btn pear-btn-primary pear-btn-md",ButtonIcon="layui-icon-add-1" },
-                   CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
-                   new SysAction{Id=9,Name="编辑",Code="system.user.edit",ParentId=2,Type=ActionTypeEnum.Button,SortCode=2,
-                   SysActionButton=new SysActionButton{ButtonCode="edit",Location=PositionEnum.FormInside,ButtonClass="pear-btn pear-btn-primary pear-btn-sm",ButtonIcon="layui-icon-edit" },
-                   CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
-                   new SysAction{Id=10,Name="删除",Code="system.user.delete",ParentId=2,Type=ActionTypeEnum.Button,SortCode=3,
-                   SysActionButton=new SysActionButton{ButtonCode="delete",Location=PositionEnum.FormInside,ButtonClass="pear-btn pear-btn-danger pear-btn-sm",ButtonIcon="layui-icon-delete" },
-                   CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
-                   new SysAction{Id=11,Name="批量删除",Code="system.user.batchDel",ParentId=2,Type=ActionTypeEnum.Button,SortCode=4,
-                   SysActionButton=new SysActionButton{ButtonCode="batchDel",Location=PositionEnum.FormRightTop,ButtonClass="pear-btn pear-btn-danger pear-btn-md",ButtonIcon="layui-icon-delete" },
-                   CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
-                   new SysAction{Id=12,Name="分配权限",Code="system.user.assign",ParentId=2,Type=ActionTypeEnum.Button,SortCode=5,
-                   SysActionButton=new SysActionButton{ButtonCode="assign",Location=PositionEnum.FormInside,ButtonClass="pear-btn pear-btn-warming pear-btn-sm",ButtonIcon="layui-icon-vercode" },
-                   CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
+                 new SysAction{Name="系统管理",Code="system",ParentId=0,Type=0,SortCode=1,
+                 SysActionMenu=new SysActionMenu{Icon="layui-icon-set-fill" },
+                 CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1}
+            };
+            sysActionsByCatalog.ForEach(s => context.Set<SysAction>().Add(s));
+            context.SaveChanges();
 
-                   new SysAction{Id=3,Name="角色管理",Code="system.role.list",ParentId=1,Type=0,SortCode=2
-                   ,SysActionMenu=new SysActionMenu{Icon="layui-icon-face-cry",Url="/System/SysRole" }
-                   ,CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
-                   new SysAction{Id=13,Name="新增",Code="system.role.create",ParentId=3,Type=ActionTypeEnum.Button,SortCode=1,
-                   SysActionButton=new SysActionButton{ButtonCode="create",Location=PositionEnum.FormRightTop,ButtonClass="pear-btn pear-btn-primary pear-btn-md",ButtonIcon="layui-icon-add-1" },
-                   CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
-                   new SysAction{Id=14,Name="编辑",Code="system.role.edit",ParentId=3,Type=ActionTypeEnum.Button,SortCode=2,
-                   SysActionButton=new SysActionButton{ButtonCode="edit",Location=PositionEnum.FormInside,ButtonClass="pear-btn pear-btn-primary pear-btn-sm",ButtonIcon="layui-icon-edit" },
-                   CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
-                   new SysAction{Id=15,Name="删除",Code="system.role.delete",ParentId=3,Type=ActionTypeEnum.Button,SortCode=3,
-                   SysActionButton=new SysActionButton{ButtonCode="delete",Location=PositionEnum.FormInside,ButtonClass="pear-btn pear-btn-danger pear-btn-sm",ButtonIcon="layui-icon-delete" },
-                   CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
-                   new SysAction{Id=16,Name="批量删除",Code="system.role.batchDel",ParentId=3,Type=ActionTypeEnum.Button,SortCode=4,
-                   SysActionButton=new SysActionButton{ButtonCode="batchDel",Location=PositionEnum.FormRightTop,ButtonClass="pear-btn pear-btn-danger pear-btn-md",ButtonIcon="layui-icon-delete" },
-                   CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
-                   new SysAction{Id=17,Name="分配权限",Code="system.role.assign",ParentId=3,Type=ActionTypeEnum.Button,SortCode=5,
-                   SysActionButton=new SysActionButton{ButtonCode="assign",Location=PositionEnum.FormInside,ButtonClass="pear-btn pear-btn-warming pear-btn-sm",ButtonIcon="layui-icon-vercode" },
-                   CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
+            //菜单
+            var systemMenu = context.Set<SysAction>().Single(s => s.Code == "system");
+            var sysActionByMenus = new List<SysAction>
+            {
+                new SysAction{Id=2,Name="用户管理",Code="system.user.list",ParentId=systemMenu.Id,Type=0,SortCode=1
+                ,SysActionMenu=new SysActionMenu{Icon="layui-icon-face-cry",Url="/System/SysUser" }
+                ,CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
+                new SysAction{Id=3,Name="角色管理",Code="system.role.list",ParentId=systemMenu.Id,Type=0,SortCode=2
+                ,SysActionMenu=new SysActionMenu{Icon="layui-icon-face-cry",Url="/System/SysRole" }
+                ,CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
+                new SysAction{Id=4,Name="权限管理",Code="system.action.list",ParentId=systemMenu.Id,Type=0,SortCode=3
+                ,SysActionMenu=new SysActionMenu{Icon="layui-icon-face-cry",Url="/System/SysAction" }
+                ,CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
+                new SysAction{Id=5,Name="数据字典",Code="system.dict.list",ParentId=systemMenu.Id,Type=0,SortCode=4
+                ,SysActionMenu=new SysActionMenu{Icon="layui-icon-face-cry",Url="/System/SysDict" }
+                ,CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
+                new SysAction{Id=6,Name="日志管理",Code="system.log",ParentId=systemMenu.Id,Type=0,SortCode=5
+                ,SysActionMenu=new SysActionMenu{Icon="layui-icon-face-cry"}
+                ,CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=systemMenu.Id,UpdateUserId=1},
+            };
+            sysActionByMenus.ForEach(s => context.Set<SysAction>().Add(s));
+            context.SaveChanges();
 
-                   new SysAction{Id=4,Name="权限管理",Code="system.action.list",ParentId=1,Type=0,SortCode=3
-                   ,SysActionMenu=new SysActionMenu{Icon="layui-icon-face-cry",Url="/System/SysAction" }
-                   ,CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
-                   new SysAction{Id=18,Name="新增",Code="system.action.create",ParentId=4,Type=ActionTypeEnum.Button,SortCode=1,
-                   SysActionButton=new SysActionButton{ButtonCode="create",Location=PositionEnum.FormRightTop,ButtonClass="pear-btn pear-btn-primary pear-btn-md",ButtonIcon="layui-icon-add-1" },
-                   CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
-                   new SysAction{Id=19,Name="编辑",Code="system.action.edit",ParentId=4,Type=ActionTypeEnum.Button,SortCode=2,
-                   SysActionButton=new SysActionButton{ButtonCode="edit",Location=PositionEnum.FormInside,ButtonClass="pear-btn pear-btn-primary pear-btn-sm",ButtonIcon="layui-icon-edit" },
-                   CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
-                   new SysAction{Id=20,Name="删除",Code="system.action.delete",ParentId=4,Type=ActionTypeEnum.Button,SortCode=3,
-                   SysActionButton=new SysActionButton{ButtonCode="delete",Location=PositionEnum.FormInside,ButtonClass="pear-btn pear-btn-danger pear-btn-sm",ButtonIcon="layui-icon-delete" },
-                   CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
-                   new SysAction{Id=21,Name="批量删除",Code="system.action.batchDel",ParentId=4,Type=ActionTypeEnum.Button,SortCode=4,
-                   SysActionButton=new SysActionButton{ButtonCode="batchDel",Location=PositionEnum.FormRightTop,ButtonClass="pear-btn pear-btn-danger pear-btn-md",ButtonIcon="layui-icon-delete" },
-                   CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
+            //子级菜单
+            var systemMenuSystemLog = context.Set<SysAction>().Single(s => s.Code == "system.log");
+            var sysActionByMenuSystemLogs = new List<SysAction>
+            {
+                new SysAction{Id=7,Name="登录日志",Code="system.log.logon",ParentId=systemMenuSystemLog.Id,Type=0,SortCode=6
+                ,SysActionMenu=new SysActionMenu{Icon="layui-icon-face-cry",Url="/System/SysLogLogon" }
+                ,CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
+            };
+            sysActionByMenuSystemLogs.ForEach(s => context.Set<SysAction>().Add(s));
+            context.SaveChanges();
 
-                   new SysAction{Id=5,Name="数据字典",Code="system.dict.list",ParentId=1,Type=0,SortCode=4
-                   ,SysActionMenu=new SysActionMenu{Icon="layui-icon-face-cry",Url="/System/SysDict" }
-                   ,CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
-                   new SysAction{Id=22,Name="新增",Code="system.dict.create",ParentId=5,Type=ActionTypeEnum.Button,SortCode=1,
-                   SysActionButton=new SysActionButton{ButtonCode="create",Location=PositionEnum.FormRightTop,ButtonClass="pear-btn pear-btn-primary pear-btn-md",ButtonIcon="layui-icon-add-1" },
-                   CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
-                   new SysAction{Id=23,Name="编辑",Code="system.dict.edit",ParentId=5,Type=ActionTypeEnum.Button,SortCode=2,
-                   SysActionButton=new SysActionButton{ButtonCode="edit",Location=PositionEnum.FormInside,ButtonClass="pear-btn pear-btn-primary pear-btn-sm",ButtonIcon="layui-icon-edit" },
-                   CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
-                   new SysAction{Id=24,Name="删除",Code="system.dict.delete",ParentId=5,Type=ActionTypeEnum.Button,SortCode=3,
-                   SysActionButton=new SysActionButton{ButtonCode="delete",Location=PositionEnum.FormInside,ButtonClass="pear-btn pear-btn-danger pear-btn-sm",ButtonIcon="layui-icon-delete" },
-                   CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
-                   new SysAction{Id=25,Name="批量删除",Code="system.dict.batchDel",ParentId=5,Type=ActionTypeEnum.Button,SortCode=4,
-                   SysActionButton=new SysActionButton{ButtonCode="batchDel",Location=PositionEnum.FormRightTop,ButtonClass="pear-btn pear-btn-danger pear-btn-md",ButtonIcon="layui-icon-delete" },
-                   CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
+            //按钮
+            var systemMenuSystemUser = context.Set<SysAction>().Single(s => s.Code == "system.user.list");
+            var systemMenuSystemRole = context.Set<SysAction>().Single(s => s.Code == "system.role.list");
+            var systemMenuSystemAction = context.Set<SysAction>().Single(s => s.Code == "system.action.list");
+            var systemMenuSystemDict = context.Set<SysAction>().Single(s => s.Code == "system.dict.list");
+            var systemMenuSystemLogLogon = context.Set<SysAction>().Single(s => s.Code == "system.log.logon");
+            var sysActionByButton = new List<SysAction>
+            {
+                new SysAction{Name="新增",Code="system.user.create",ParentId=systemMenuSystemUser.Id,Type=ActionTypeEnum.Button,SortCode=1,
+                SysActionButton=new SysActionButton{ButtonCode="create",Location=PositionEnum.FormRightTop,ButtonClass="pear-btn pear-btn-primary pear-btn-md",ButtonIcon="layui-icon-add-1" },
+                CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
+                new SysAction{Name="编辑",Code="system.user.edit",ParentId=systemMenuSystemUser.Id,Type=ActionTypeEnum.Button,SortCode=2,
+                SysActionButton=new SysActionButton{ButtonCode="edit",Location=PositionEnum.FormInside,ButtonClass="pear-btn pear-btn-primary pear-btn-sm",ButtonIcon="layui-icon-edit" },
+                CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
+                new SysAction{Name="删除",Code="system.user.delete",ParentId=systemMenuSystemUser.Id,Type=ActionTypeEnum.Button,SortCode=3,
+                SysActionButton=new SysActionButton{ButtonCode="delete",Location=PositionEnum.FormInside,ButtonClass="pear-btn pear-btn-danger pear-btn-sm",ButtonIcon="layui-icon-delete" },
+                CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
+                new SysAction{Name="批量删除",Code="system.user.batchDel",ParentId=systemMenuSystemUser.Id,Type=ActionTypeEnum.Button,SortCode=4,
+                SysActionButton=new SysActionButton{ButtonCode="batchDel",Location=PositionEnum.FormRightTop,ButtonClass="pear-btn pear-btn-danger pear-btn-md",ButtonIcon="layui-icon-delete" },
+                CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
+                new SysAction{Name="分配权限",Code="system.user.assign",ParentId=systemMenuSystemUser.Id,Type=ActionTypeEnum.Button,SortCode=5,
+                SysActionButton=new SysActionButton{ButtonCode="assign",Location=PositionEnum.FormInside,ButtonClass="pear-btn pear-btn-warming pear-btn-sm",ButtonIcon="layui-icon-vercode" },
+                CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
+                new SysAction{Name="重置密码",Code="system.user.initPwd",ParentId=systemMenuSystemUser.Id,Type=ActionTypeEnum.Button,SortCode=6,
+                SysActionButton=new SysActionButton{ButtonCode="initPwd",Location=PositionEnum.FormInside,ButtonClass="pear-btn pear-btn-warming pear-btn-sm",ButtonIcon="layui-icon-refresh" },
+                CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
 
-                   new SysAction{Id=6,Name="日志管理",Code="system.log",ParentId=1,Type=0,SortCode=5
-                   ,SysActionMenu=new SysActionMenu{Icon="layui-icon-face-cry"}
-                   ,CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
+                new SysAction{Name="新增",Code="system.role.create",ParentId=systemMenuSystemRole.Id,Type=ActionTypeEnum.Button,SortCode=1,
+                SysActionButton=new SysActionButton{ButtonCode="create",Location=PositionEnum.FormRightTop,ButtonClass="pear-btn pear-btn-primary pear-btn-md",ButtonIcon="layui-icon-add-1" },
+                CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
+                new SysAction{Name="编辑",Code="system.role.edit",ParentId=systemMenuSystemRole.Id,Type=ActionTypeEnum.Button,SortCode=2,
+                SysActionButton=new SysActionButton{ButtonCode="edit",Location=PositionEnum.FormInside,ButtonClass="pear-btn pear-btn-primary pear-btn-sm",ButtonIcon="layui-icon-edit" },
+                CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
+                new SysAction{Name="删除",Code="system.role.delete",ParentId=systemMenuSystemRole.Id,Type=ActionTypeEnum.Button,SortCode=3,
+                SysActionButton=new SysActionButton{ButtonCode="delete",Location=PositionEnum.FormInside,ButtonClass="pear-btn pear-btn-danger pear-btn-sm",ButtonIcon="layui-icon-delete" },
+                CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
+                new SysAction{Name="批量删除",Code="system.role.batchDel",ParentId=systemMenuSystemRole.Id,Type=ActionTypeEnum.Button,SortCode=4,
+                SysActionButton=new SysActionButton{ButtonCode="batchDel",Location=PositionEnum.FormRightTop,ButtonClass="pear-btn pear-btn-danger pear-btn-md",ButtonIcon="layui-icon-delete" },
+                CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
+                new SysAction{Name="分配权限",Code="system.role.assign",ParentId=systemMenuSystemRole.Id,Type=ActionTypeEnum.Button,SortCode=5,
+                SysActionButton=new SysActionButton{ButtonCode="assign",Location=PositionEnum.FormInside,ButtonClass="pear-btn pear-btn-warming pear-btn-sm",ButtonIcon="layui-icon-vercode" },
+                CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
 
-                   new SysAction{Id=7,Name="登录日志",Code="system.log.logon",ParentId=6,Type=0,SortCode=6
-                   ,SysActionMenu=new SysActionMenu{Icon="layui-icon-face-cry",Url="/System/SysLogLogon" }
-                   ,CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
-                   new SysAction{Id=26,Name="导出",Code="system.log.logon.export",ParentId=7,Type=ActionTypeEnum.Button,SortCode=1,
-                   SysActionButton=new SysActionButton{ButtonCode="export",Location=PositionEnum.FormRightTop,ButtonClass="pear-btn pear-btn-primary pear-btn-md",ButtonIcon="layui-icon-export" },
-                   CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
+                new SysAction{Name="新增",Code="system.action.create",ParentId=systemMenuSystemAction.Id,Type=ActionTypeEnum.Button,SortCode=1,
+                SysActionButton=new SysActionButton{ButtonCode="create",Location=PositionEnum.FormRightTop,ButtonClass="pear-btn pear-btn-primary pear-btn-md",ButtonIcon="layui-icon-add-1" },
+                CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
+                new SysAction{Name="编辑",Code="system.action.edit",ParentId=systemMenuSystemAction.Id,Type=ActionTypeEnum.Button,SortCode=2,
+                SysActionButton=new SysActionButton{ButtonCode="edit",Location=PositionEnum.FormInside,ButtonClass="pear-btn pear-btn-primary pear-btn-sm",ButtonIcon="layui-icon-edit" },
+                CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
+                new SysAction{Name="删除",Code="system.action.delete",ParentId=systemMenuSystemAction.Id,Type=ActionTypeEnum.Button,SortCode=3,
+                SysActionButton=new SysActionButton{ButtonCode="delete",Location=PositionEnum.FormInside,ButtonClass="pear-btn pear-btn-danger pear-btn-sm",ButtonIcon="layui-icon-delete" },
+                CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
+                new SysAction{Name="批量删除",Code="system.action.batchDel",ParentId=systemMenuSystemAction.Id,Type=ActionTypeEnum.Button,SortCode=4,
+                SysActionButton=new SysActionButton{ButtonCode="batchDel",Location=PositionEnum.FormRightTop,ButtonClass="pear-btn pear-btn-danger pear-btn-md",ButtonIcon="layui-icon-delete" },
+                CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
+
+                new SysAction{Name="新增",Code="system.dict.create",ParentId=systemMenuSystemDict.Id,Type=ActionTypeEnum.Button,SortCode=1,
+                SysActionButton=new SysActionButton{ButtonCode="create",Location=PositionEnum.FormRightTop,ButtonClass="pear-btn pear-btn-primary pear-btn-md",ButtonIcon="layui-icon-add-1" },
+                CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
+                new SysAction{Name="编辑",Code="system.dict.edit",ParentId=systemMenuSystemDict.Id,Type=ActionTypeEnum.Button,SortCode=2,
+                SysActionButton=new SysActionButton{ButtonCode="edit",Location=PositionEnum.FormInside,ButtonClass="pear-btn pear-btn-primary pear-btn-sm",ButtonIcon="layui-icon-edit" },
+                CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
+                new SysAction{Name="删除",Code="system.dict.delete",ParentId=systemMenuSystemDict.Id,Type=ActionTypeEnum.Button,SortCode=3,
+                SysActionButton=new SysActionButton{ButtonCode="delete",Location=PositionEnum.FormInside,ButtonClass="pear-btn pear-btn-danger pear-btn-sm",ButtonIcon="layui-icon-delete" },
+                CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
+                new SysAction{Name="批量删除",Code="system.dict.batchDel",ParentId=systemMenuSystemDict.Id,Type=ActionTypeEnum.Button,SortCode=4,
+                SysActionButton=new SysActionButton{ButtonCode="batchDel",Location=PositionEnum.FormRightTop,ButtonClass="pear-btn pear-btn-danger pear-btn-md",ButtonIcon="layui-icon-delete" },
+                CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
+
+                new SysAction{Id=26,Name="导出",Code="system.log.logon.export",ParentId=systemMenuSystemLogLogon.Id,Type=ActionTypeEnum.Button,SortCode=1,
+                SysActionButton=new SysActionButton{ButtonCode="export",Location=PositionEnum.FormRightTop,ButtonClass="pear-btn pear-btn-primary pear-btn-md",ButtonIcon="layui-icon-export" },
+                CreateTime=DateTime.Now,UpdateTime=DateTime.Now,CreateUserId=1,UpdateUserId=1},
             };
 
-            sysActions.ForEach(s => context.Set<SysAction>().Add(s));
+            sysActionByButton.ForEach(s => context.Set<SysAction>().Add(s));
             context.SaveChanges();
             #endregion
 

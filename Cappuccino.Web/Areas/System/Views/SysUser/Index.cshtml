@@ -113,6 +113,8 @@
                     window.edit(data.id);
                 } else if (obj.event === 'assign') {
                     window.assign(data.id);
+                } else if (obj.event === 'initPwd') {
+                    window.initPwd(data.id);
                 }
             });
 
@@ -201,6 +203,18 @@
                 ids = ids.substr(0, ids.length - 1);
                 layer.confirm('确定要删除这些用户', { icon: 3, title: '提示' }, function (index) {
                     common.ajax(MODULE_PATH + "batchDel", "post", { idsStr: ids }, true, true).done(function (response) {
+                        layer.msg(response.msg, { icon: 1, time: 1000 }, function () {
+                            table.reload('tableId');
+                        });
+                    }).fail(function (error) {
+                        console.log(error)
+                    });
+                });
+            }
+
+            window.initPwd = function (id) {
+                layer.confirm('确定要重置该用户密码？', { icon: 3, title: '提示' }, function (index) {
+                    common.ajax(MODULE_PATH + "InitPwd", "post", { id: id }, true, true).done(function (response) {
                         layer.msg(response.msg, { icon: 1, time: 1000 }, function () {
                             table.reload('tableId');
                         });

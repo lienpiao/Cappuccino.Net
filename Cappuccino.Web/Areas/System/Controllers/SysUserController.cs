@@ -211,7 +211,7 @@ namespace Cappuccino.Web.Areas.System.Controllers
             return WriteSuccess("更新成功");
         }
 
-        [HttpGet]
+        [HttpPost, CheckPermission("system.user.initPwd")]
         public ActionResult InitPwd(int id)
         {
             string salt = VerifyCodeUtils.CreateVerifyCode(5);
